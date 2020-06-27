@@ -1,0 +1,38 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "private": true,
+  "homepage": ".",
+  "proxy": "http://localhost:5000",
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.3.5",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
+    "@types/react-redux": "^7.1.8",
+    "axios": "latest",
+    "loglevel": "^1.6.8",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-json-view": "^1.19.1",
+    "react-redux": "^7.2.0",
+    "react-scripts": "^3.4.1",
+    "redux": "^4.0.5",
+    "typescript": "^3.8.3",
+    "websocket-extensions":"^0.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build && rm -rf ../backend/frontend && cp -r build ../backend/frontend && rm -rf ../windowsBuild/frontend && mv build ../windowsBuild/frontend",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "@types/react-sound": "^1.2.2"
+  }
+}
