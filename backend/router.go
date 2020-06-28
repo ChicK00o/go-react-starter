@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/contrib/cors"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	jsoniter "github.com/json-iterator/go"
 	"net/http"
 	"os"
 	"time"
@@ -77,12 +78,11 @@ func (c *RouterConstruct) startRouter(portNumber int) {
 		})
 	}
 
+	go c.listenForBlackboard()
 	// Start and run the server
 	if err := c.router.Run(fmt.Sprintf(":%d", portNumber)); err != nil {
 		panic(err)
 	}
-
-	go c.listenForBlackboard()
 }
 
 func (c *RouterConstruct) closeServer() {
@@ -115,7 +115,15 @@ func (c *RouterConstruct) serveWs(pool *websocket.Pool, w http.ResponseWriter, r
 }
 
 func (c *RouterConstruct) FromClients(message websocket.WSMessage) {
-	go c.pool.BroadcastData("ping_pong", message.Msg)
+	switch message.Msg.Type {
+	case "data":
+		c.blackboard.updateDisplay <- true
+		break
+	default:
+		data, _ := jsoniter.ConfigFastest.MarshalToString(message.Msg.Body)
+		c.log.Error("Unhandled message type : ", message.Msg.Type, " with data : ", data)
+		go c.pool.BroadcastData("ping_pong", message.Msg)
+	}
 }
 
 func (c *RouterConstruct) listenForBlackboard() {

@@ -1,37 +1,30 @@
-import React, { createContext, PropsWithChildren, ReactNode } from 'react'
-import { useDispatch } from 'react-redux';
-import { jsonResponse } from 'features/responseDisplay/jsonSlice';
+import React, {createContext, PropsWithChildren, ReactNode} from 'react'
+import {useDispatch} from 'react-redux';
 import * as log from 'loglevel';
+import {receivedMessageHandler, sendMessageHandler} from "./websocketMessageHandler";
 
 const WebSocketContext = createContext<Websocket | null>(null);
 
-export { WebSocketContext }
+export {WebSocketContext}
 
 interface Websocket {
-    webSocket : WebSocket,
-    sendMessage : (message: string) => void
+    webSocket: WebSocket,
+    sendMessage: (type: string, message: any) => void
 }
 
-const WebSocketProvider = ({children} : PropsWithChildren<ReactNode>) => {
-    let webSocket : WebSocket;
-    let ws : Websocket;
+const WebSocketProvider = ({children}: PropsWithChildren<ReactNode>) => {
+    let webSocket: WebSocket;
+    let ws: Websocket;
 
     const dispatch = useDispatch();
 
-    const sendMessage = (message : string) => {
-        const payload = {
-            type: "sendMessage",
-            data: message
-        };
-        webSocket.send(JSON.stringify(payload))
-        // dispatch(updateChatLog(payload));
+    const sendMessage = (type: string, message: any) => {
+        sendMessageHandler(webSocket, type, message);
     };
-
 
     webSocket = new WebSocket("ws://127.0.0.1:5000/api/ws");
     webSocket.onmessage = ev => {
-        const payload = JSON.parse(ev.data);
-        dispatch(jsonResponse(payload));
+        receivedMessageHandler(ev.data, dispatch);
     };
 
     webSocket.onopen = () => {
