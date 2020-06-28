@@ -3,6 +3,7 @@ package websocket
 import (
 	"backend/log"
 	"github.com/gorilla/websocket"
+	jsoniter "github.com/json-iterator/go"
 )
 
 type Client struct {
@@ -12,9 +13,13 @@ type Client struct {
 }
 
 type Message struct {
-	Type        int         `json:"type"`
-	MessageType string      `json:"message_type"`
-	Body        interface{} `json:"body"`
+	Type string      `json:"type"`
+	Body interface{} `json:"body"`
+}
+
+type WSMessage struct {
+	Type int     `json:"type"`
+	Msg  Message `json:"msg"`
 }
 
 func (c *Client) Read() {
@@ -27,9 +32,15 @@ func (c *Client) Read() {
 		messageType, p, err := c.Conn.ReadMessage()
 		if err != nil {
 			log.Instance().Error(err)
-			return
+			continue
 		}
-		c.Pool.FromClients <- Message{Type: messageType, Body: string(p)}
+		data := Message{}
+		err = jsoniter.ConfigFastest.Unmarshal(p, &data)
+		if err != nil {
+			log.Instance().Error(err)
+			continue
+		}
+		c.Pool.FromClients <- WSMessage{Type: messageType, Msg:data}
 		log.Instance().Info("Message Received: ", string(p))
 	}
 }

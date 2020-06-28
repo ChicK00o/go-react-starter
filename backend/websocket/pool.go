@@ -3,19 +3,18 @@ package websocket
 import (
 	"backend/log"
 	"errors"
-	jsoniter "github.com/json-iterator/go"
 )
 
 type Receivers interface {
-	FromClients(Message)
+	FromClients(WSMessage)
 }
 
 type Pool struct {
 	Register     chan *Client
 	Unregister   chan *Client
 	Clients      map[*Client]bool
-	ToClients    chan []byte
-	FromClients  chan Message
+	ToClients    chan Message
+	FromClients  chan WSMessage
 	AllReceivers []Receivers
 }
 
@@ -24,8 +23,8 @@ func NewPool() *Pool {
 		Register:     make(chan *Client),
 		Unregister:   make(chan *Client),
 		Clients:      make(map[*Client]bool),
-		ToClients:    make(chan []byte),
-		FromClients:  make(chan Message),
+		ToClients:    make(chan Message),
+		FromClients:  make(chan WSMessage),
 		AllReceivers: make([]Receivers, 0),
 	}
 }
@@ -38,23 +37,20 @@ func (pool *Pool) Start() {
 			log.Instance().Info("Size of Connection Pool: ", len(pool.Clients))
 			for client, _ := range pool.Clients {
 				log.Instance().Info(client)
-				writeJSON(client.Conn, Message{Type: 1, Body: "New User Joined..."})
+				writeJSON(client.Conn, Message{Type: "system", Body: "client connected"})
 			}
 			break
 		case client := <-pool.Unregister:
 			delete(pool.Clients, client)
 			log.Instance().Info("Size of Connection Pool: ", len(pool.Clients))
 			for client, _ := range pool.Clients {
-				writeJSON(client.Conn, Message{Type: 1, Body: "User Disconnected..."})
+				writeJSON(client.Conn, Message{Type: "system", Body: "client disconnected"})
 			}
 			break
 		case message := <-pool.ToClients:
 			//log.Instance().Info("Sending message to all clients in Pool")
 			for client, _ := range pool.Clients {
-				if err := client.Conn.WriteMessage(1, message); err != nil {
-					log.Instance().Error(err)
-					return
-				}
+				writeJSON(client.Conn, message)
 			}
 			break
 		case message := <-pool.FromClients:
@@ -91,22 +87,10 @@ func (pool *Pool) UnRegisterReceiver(receiver Receivers) error {
 	return nil
 }
 
-func (pool *Pool) BroadcastText(message string) error {
-	message, err := jsoniter.ConfigFastest.MarshalToString(Message{Type: 1, Body: message, MessageType: "generic"})
-	if err != nil {
-		log.Instance().Error(err)
-		return err
-	}
-	pool.ToClients <- []byte(message)
-	return nil
+func (pool *Pool) BroadcastText(message string) {
+	pool.ToClients <- Message{Type: "generic", Body: message}
 }
 
-func (pool *Pool) BroadcastData(messageType string, data interface{}) error {
-	message, err := jsoniter.ConfigFastest.MarshalToString(Message{Type: 1, Body: data, MessageType: messageType})
-	if err != nil {
-		log.Instance().Error(err)
-		return err
-	}
-	pool.ToClients <- []byte(message)
-	return nil
+func (pool *Pool) BroadcastData(messageType string, data interface{}) {
+	pool.ToClients <- Message{Type: messageType, Body: data}
 }

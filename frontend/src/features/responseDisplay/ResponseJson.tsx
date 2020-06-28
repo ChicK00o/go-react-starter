@@ -13,35 +13,12 @@ const ResponseJson = () => {
         (state: RootState) => state.jsonHolder
     );
 
-    const [intervalRef, setIntervalRef] = useState<NodeJS.Timeout | undefined>(undefined);
-
-    useEffect(() => {
-        return () => {
-            if (intervalRef !== undefined) {
-                clearInterval(intervalRef);
-            }
-        }
-    }, [intervalRef]);
-
     const onPingServer = () => {
-        if (intervalRef === undefined) {
-            setIntervalRef(setInterval(() => {
-                dispatch(pingBackend());
-            }, 1000))
-        }
+        dispatch(pingBackend());
     };
 
     const onCloseServer = () => {
-        onStopRefresh();
         dispatch(closeBackend());
-    };
-
-
-    const onStopRefresh = () => {
-        if (intervalRef !== undefined) {
-            clearInterval(intervalRef);
-            setIntervalRef(undefined)
-        }
     };
 
     const [data, setData] = useState("not set");
@@ -60,8 +37,7 @@ const ResponseJson = () => {
         <div>
             <div>
                 <ReactJson src={value} theme="solarized"/>
-                <button onClick={onPingServer}>Start</button>
-                <button onClick={onStopRefresh}>Stop Refresh</button>
+                <button onClick={onPingServer}>Get Data</button>
             </div>
             <form onSubmit={onFormSubmit}>
                 <label>Message Backend</label>

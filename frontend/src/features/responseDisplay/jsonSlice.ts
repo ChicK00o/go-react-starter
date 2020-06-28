@@ -1,12 +1,12 @@
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {Action, createSlice, PayloadAction, ThunkDispatch} from "@reduxjs/toolkit";
 import {AppThunk} from "../../app/store";
 import axios from 'axios';
 import * as log from 'loglevel';
+import {RootState} from "../../app/rootReducer";
 
 interface JsonHolder {
     value: any
 }
-
 
 const initialState: JsonHolder = {
     value: {},
@@ -31,18 +31,7 @@ export default jsonHolder.reducer
 
 export const pingBackend = ():
     AppThunk => async dispatch => {
-    try {
-        const data = await getPing();
-        dispatch(jsonResponse(data));
-    } catch (err) {
-        if (err.response) {
-            dispatch(jsonResponse(err.response));
-        } else if (err.request) {
-            dispatch(jsonResponse(err.request));
-        } else {
-            dispatch(jsonResponse(err));
-        }
-    }
+    await doThis(getPing, dispatch);
 };
 
 interface PingResponse {
@@ -50,15 +39,25 @@ interface PingResponse {
 }
 
 async function getPing() {
-    const url = "http://127.0.0.1:5000/ping";
+    const url = "http://127.0.0.1:5000/api/data";
     const {data} = await axios.get<PingResponse>(url);
     return data
 }
 
 export const closeBackend = ():
     AppThunk => async dispatch => {
+    await doThis(getClose, dispatch);
+};
+
+async function getClose() {
+    const url = "http://127.0.0.1:5000/api/close";
+    const {data} = await axios.get<PingResponse>(url);
+    return data
+}
+
+async function doThis(getApi: () => Promise<any>, dispatch: ThunkDispatch<RootState, unknown, Action<string>>) {
     try {
-        const data = await getClose();
+        const data = await getApi();
         dispatch(jsonResponse(data));
     } catch (err) {
         if (err.response) {
@@ -69,10 +68,4 @@ export const closeBackend = ():
             dispatch(jsonResponse(err));
         }
     }
-};
-
-async function getClose() {
-    const url = "http://127.0.0.1:5000/api/close";
-    const {data} = await axios.get<PingResponse>(url);
-    return data
 }

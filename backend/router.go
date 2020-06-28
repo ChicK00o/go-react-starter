@@ -52,7 +52,9 @@ func (c *RouterConstruct) startRouter(portNumber int) {
 
 	c.pool = websocket.NewPool()
 	go c.pool.Start()
-	c.pool.RegisterReceiver(c)
+	if err := c.pool.RegisterReceiver(c); err != nil {
+		c.log.Error(err)
+	}
 
 	// Setup route group for the API
 	api := c.router.Group("/api")
@@ -112,13 +114,13 @@ func (c *RouterConstruct) serveWs(pool *websocket.Pool, w http.ResponseWriter, r
 	client.Read()
 }
 
-func (c *RouterConstruct) FromClients(message websocket.Message) {
-	c.pool.BroadcastData("FromMainProgram", message)
+func (c *RouterConstruct) FromClients(message websocket.WSMessage) {
+	go c.pool.BroadcastData("ping_pong", message.Msg)
 }
 
 func (c *RouterConstruct) listenForBlackboard() {
 	for {
 		_ = <- c.blackboard.updateDisplay
-		go c.pool.BroadcastData("Display", c.blackboard.dataHolder)
+		go c.pool.BroadcastData("display", c.blackboard.dataHolder)
 	}
 }
