@@ -1,6 +1,11 @@
 package main
 
-import "backend/log"
+import (
+	"backend/blackboard"
+	"backend/config"
+	"backend/db"
+	"backend/log"
+)
 
 func main() {
 	log := log.NewLogger(false)
@@ -9,9 +14,11 @@ func main() {
 		log.Close()
 	}()
 
-	blackboard := NewBlackboard(app.log)
+	board := blackboard.NewBlackboard(app.log)
 	utilities := NewUtilities(app.log)
+	dbase := db.NewDatabase()
+	con := config.NewConfig(log, dbase, "go-react-starter")
 
-	routerConstruct := NewRouterConstruct(app.log, utilities, blackboard)
-	routerConstruct.startRouter(5000)
+	routerConstruct := NewRouterConstruct(app.log, utilities, board, con)
+	routerConstruct.startRouter(con.Data.Port)
 }

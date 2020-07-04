@@ -1,6 +1,8 @@
 package main
 
 import (
+	"backend/blackboard"
+	"backend/config"
 	"backend/log"
 	"backend/websocket"
 	"fmt"
@@ -10,6 +12,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"net/http"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -17,13 +20,14 @@ type RouterConstruct struct {
 	log        log.Logger
 	utilities  *Utilities
 	router     *gin.Engine
-	blackboard *Blackboard
+	blackboard *blackboard.Blackboard
 	pool       *websocket.Pool
+	config     *config.Config
 }
 
-func NewRouterConstruct(l log.Logger, u *Utilities, b *Blackboard) *RouterConstruct {
+func NewRouterConstruct(l log.Logger, u *Utilities, b *blackboard.Blackboard, c *config.Config) *RouterConstruct {
 	gin.SetMode(gin.ReleaseMode)
-	return &RouterConstruct{log: l, utilities: u, router: gin.Default(), blackboard: b}
+	return &RouterConstruct{log: l, utilities: u, router: gin.Default(), blackboard: b, config:c}
 }
 
 func (c *RouterConstruct) startRouter(portNumber int) {
@@ -61,9 +65,9 @@ func (c *RouterConstruct) startRouter(portNumber int) {
 	api := c.router.Group("/api")
 	{
 		api.GET("/data", func(ctx *gin.Context) {
-			c.blackboard.dataHolder.Time = time.Now().String()
+			c.blackboard.DataHolder.Time = time.Now().String()
 			ctx.JSON(http.StatusOK, gin.H{
-				"payload": c.blackboard.dataHolder,
+				"payload": c.blackboard.DataHolder,
 			})
 		})
 		api.GET("/close", func(ctx *gin.Context) {
@@ -117,7 +121,10 @@ func (c *RouterConstruct) serveWs(pool *websocket.Pool, w http.ResponseWriter, r
 func (c *RouterConstruct) FromClients(message websocket.WSMessage) {
 	switch message.Msg.Type {
 	case "data":
-		c.blackboard.updateDisplay <- true
+		c.blackboard.UpdateDisplay()
+		break
+	case "config":
+		c.config.UpdateConfig(message.Msg.Body)
 		break
 	default:
 		data, _ := jsoniter.ConfigFastest.MarshalToString(message.Msg.Body)
@@ -127,8 +134,12 @@ func (c *RouterConstruct) FromClients(message websocket.WSMessage) {
 }
 
 func (c *RouterConstruct) listenForBlackboard() {
+	c.blackboard.ListenerAttached = true
 	for {
-		_ = <- c.blackboard.updateDisplay
-		go c.pool.BroadcastData("display", c.blackboard.dataHolder)
+		_ = <-c.blackboard.UpdateChannel
+		c.blackboard.DataHolder.Time = time.Now().String()
+		c.blackboard.DataHolder.GoRoutineCount = runtime.NumGoroutine()
+		go c.pool.BroadcastData("display", c.blackboard.DataHolder)
+		go c.pool.BroadcastData("config", c.config.Data)
 	}
 }

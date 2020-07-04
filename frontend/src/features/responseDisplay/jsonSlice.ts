@@ -6,10 +6,12 @@ import {RootState} from "../../app/rootReducer";
 
 interface JsonHolder {
     value: any
+    config: any
 }
 
 const initialState: JsonHolder = {
     value: {},
+    config: {},
 };
 
 const jsonHolder = createSlice({
@@ -20,11 +22,16 @@ const jsonHolder = createSlice({
             log.debug(payload);
             state.value = payload;
         },
+        configResponse(state, {payload}: PayloadAction<any>) {
+            log.debug(payload);
+            state.config = payload;
+        },
     }
 });
 
 export const {
     jsonResponse,
+    configResponse,
 } = jsonHolder.actions;
 
 export default jsonHolder.reducer
@@ -39,7 +46,7 @@ interface PingResponse {
 }
 
 async function getPing() {
-    const url = "http://127.0.0.1:5000/api/data";
+    const url = "http://127.0.0.1:5001/api/data";
     const {data} = await axios.get<PingResponse>(url);
     return data
 }
@@ -50,7 +57,7 @@ export const closeBackend = ():
 };
 
 async function getClose() {
-    const url = "http://127.0.0.1:5000/api/close";
+    const url = "http://127.0.0.1:5001/api/close";
     const {data} = await axios.get<PingResponse>(url);
     return data
 }

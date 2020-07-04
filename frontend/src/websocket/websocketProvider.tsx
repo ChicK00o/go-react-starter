@@ -22,7 +22,7 @@ const WebSocketProvider = ({children}: PropsWithChildren<ReactNode>) => {
         sendMessageHandler(webSocket, type, message);
     };
 
-    webSocket = new WebSocket("ws://127.0.0.1:5000/api/ws");
+    webSocket = new WebSocket("ws://127.0.0.1:4999/api/ws");
     webSocket.onmessage = ev => {
         receivedMessageHandler(ev.data, dispatch);
     };

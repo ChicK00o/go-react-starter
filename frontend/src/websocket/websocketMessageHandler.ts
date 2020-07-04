@@ -1,6 +1,6 @@
 import {Action, ThunkDispatch} from "@reduxjs/toolkit";
 import {RootState} from "../app/rootReducer";
-import {jsonResponse} from "../features/responseDisplay/jsonSlice";
+import {jsonResponse, configResponse} from "../features/responseDisplay/jsonSlice";
 import log from "loglevel";
 
 interface Message {
@@ -25,16 +25,21 @@ export const receivedMessageHandler = (data: any, dispatch: ThunkDispatch<RootSt
                 log.debug(payload.type + " : " + payload.body);
                 // const value = payload.body as DisplayResponse;
                 // dispatch(displayResponse(value));
+                dispatch(jsonResponse(payload));
+                break;
+            }
+            case "config": {
+                dispatch(configResponse(payload.body));
                 break;
             }
             case "ping_pong":
             case "system":
             default: {
                 log.debug(payload.type + " : " + payload.body);
+                dispatch(jsonResponse(payload));
                 break;
             }
         }
-        dispatch(jsonResponse(payload));
     } else {
         dispatch(jsonResponse(rawPayload));
     }

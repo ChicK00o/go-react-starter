@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gorilla/websocket v1.4.2
+	github.com/jackc/pgx/v4 v4.7.1
 	github.com/json-iterator/go v1.1.9
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	go.uber.org/zap v1.15.0

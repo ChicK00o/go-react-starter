@@ -1,5 +1,7 @@
 package log
 
+import "go.uber.org/zap"
+
 type Logger interface {
 	With(args ...interface{}) *Logger
 	Debug(args ...interface{})
@@ -12,6 +14,8 @@ type Logger interface {
 }
 
 var internalLogger Logger = nil
+var createdDefault bool = false
+var zapper *zapLogger = nil
 
 func NewLogger(wantDefault bool) Logger {
 	if !isLoggerNil() {
@@ -19,10 +23,12 @@ func NewLogger(wantDefault bool) Logger {
 		return internalLogger
 	}
 	if wantDefault {
+		createdDefault = true
 		internalLogger = initDefaultLogger()
 		return internalLogger
 	}
-	internalLogger = initZapLogger()
+	createdDefault = false
+	internalLogger, zapper = initZapLogger()
 	return internalLogger
 }
 
@@ -35,4 +41,15 @@ func Instance() Logger {
 		_ = NewLogger(false)
 	}
 	return internalLogger
+}
+
+func IsZapLogger() bool {
+	return createdDefault == false
+}
+
+func GetZapLogger() *zap.SugaredLogger {
+	if IsZapLogger() {
+		return zapper.sugarLogger
+	}
+	return nil
 }

@@ -1,8 +1,8 @@
-import React, {FormEvent, useContext, useEffect, useState} from 'react';
+import React, {FormEvent, useContext, useState} from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../app/rootReducer";
 import ReactJson from "react-json-view";
-import {closeBackend, pingBackend} from "./jsonSlice";
+import {closeBackend} from "./jsonSlice";
 import {ChangeHandler} from "../../utilities/types";
 import {WebSocketContext} from "../../websocket/websocketProvider";
 
@@ -14,7 +14,8 @@ const ResponseJson = () => {
     );
 
     const onPingServer = () => {
-        dispatch(pingBackend());
+        // dispatch(pingBackend());
+        ws?.sendMessage("data", {})
     };
 
     const onCloseServer = () => {
@@ -30,7 +31,7 @@ const ResponseJson = () => {
     const ws = useContext(WebSocketContext);
     const onFormSubmit = (event: FormEvent) => {
         event.preventDefault();
-        ws?.sendMessage(data)
+        ws?.sendMessage("user", data)
     };
 
     return (

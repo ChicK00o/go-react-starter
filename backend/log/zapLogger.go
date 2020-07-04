@@ -45,7 +45,7 @@ func (z *zapLogger) Close() {
 	_ = z.sugarLogger.Sync()
 }
 
-func initZapLogger() Logger {
+func initZapLogger() (Logger, *zapLogger) {
 	fileWriter := getLogFileWriter()
 	encoderFile := getFileEncoder()
 	encoderConsole := getConsoleEncoder()
@@ -58,9 +58,9 @@ func initZapLogger() Logger {
 	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel)).Sugar()
 	logger.Debug("Logger Init(ed)")
 
-	var log Logger
-	log = &zapLogger{sugarLogger: logger}
-	return log
+	var zapper *zapLogger
+	zapper = &zapLogger{sugarLogger: logger}
+	return zapper, zapper
 }
 
 func getConsoleEncoder() zapcore.Encoder {
