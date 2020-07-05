@@ -65,9 +65,10 @@ func (c *RouterConstruct) startRouter(portNumber int) {
 	api := c.router.Group("/api")
 	{
 		api.GET("/data", func(ctx *gin.Context) {
-			c.blackboard.DataHolder.Time = time.Now().String()
+			c.blackboard.Display.Time = time.Now().String()
+			c.blackboard.Display.GoRoutineCount = runtime.NumGoroutine()
 			ctx.JSON(http.StatusOK, gin.H{
-				"payload": c.blackboard.DataHolder,
+				"payload": c.blackboard.Display,
 			})
 		})
 		api.GET("/close", func(ctx *gin.Context) {
@@ -137,9 +138,9 @@ func (c *RouterConstruct) listenForBlackboard() {
 	c.blackboard.ListenerAttached = true
 	for {
 		_ = <-c.blackboard.UpdateChannel
-		c.blackboard.DataHolder.Time = time.Now().String()
-		c.blackboard.DataHolder.GoRoutineCount = runtime.NumGoroutine()
-		go c.pool.BroadcastData("display", c.blackboard.DataHolder)
+		c.blackboard.Display.Time = time.Now().String()
+		c.blackboard.Display.GoRoutineCount = runtime.NumGoroutine()
+		go c.pool.BroadcastData("display", c.blackboard.Display)
 		go c.pool.BroadcastData("config", c.config.Data)
 	}
 }

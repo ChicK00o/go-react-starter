@@ -6,27 +6,31 @@ import (
 
 type Blackboard struct {
 	logger           log.Logger
-	DataHolder       *DisplayDataHolder
+	Display          *DisplayDataHolder
 	UpdateChannel    chan bool
 	ListenerAttached bool
+	InternalData     *CustomInternalData
 }
 
 type DisplayDataHolder struct {
-	Message        string      `json:"message"`
-	Time           string      `json:"time"`
-	GoRoutineCount int         `json:"go_routine_count"`
-	Data           interface{} `json:"data"`
+	Message        string             `json:"message"`
+	Time           string             `json:"time"`
+	GoRoutineCount int                `json:"go_routine_count"`
+	Data           *CustomDisplayData `json:"data"`
 }
 
 var board *Blackboard = nil
 
 func NewBlackboard(l log.Logger) *Blackboard {
 	if board == nil {
-		dataHolder := &DisplayDataHolder{}
+		dataHolder := &DisplayDataHolder{
+			Data: InitialCustomData(),
+		}
 		board = &Blackboard{
 			logger:        l,
-			DataHolder:    dataHolder,
+			Display:       dataHolder,
 			UpdateChannel: make(chan bool),
+			InternalData:  InitialCustomInternalData(),
 		}
 	}
 	return board

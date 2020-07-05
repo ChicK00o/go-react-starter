@@ -11,11 +11,7 @@ type Config struct {
 	log  log.Logger
 	db   *db.Database
 	key  string
-	Data *Data
-}
-
-type Data struct {
-	Port        int    `json:"port"`
+	Data *CustomData
 }
 
 var configInstance *Config = nil
@@ -26,9 +22,7 @@ func NewConfig(l log.Logger, d *db.Database, projectKey string) *Config {
 			log: l,
 			db:  d,
 			key: projectKey,
-			Data: &Data{
-				Port:        4999,
-			},
+			Data: InitialCustomData(),
 		}
 		configInstance.init()
 	}
@@ -56,7 +50,7 @@ func (c *Config) createTableIfNeeded() error {
 }
 
 func (c *Config) getConfigData() {
-	val := &Data{}
+	val := InitialCustomData()
 	err := c.db.Conn.QueryRow(context.Background(), "SELECT data from config where project_key like $1", c.key).Scan(&val)
 	if err != nil {
 		c.log.Error(err)
@@ -95,7 +89,7 @@ func (c *Config) UpdateConfig(msg interface{}) {
 		c.log.Error(err)
 		return
 	}
-	con := &Data{}
+	con := InitialCustomData()
 	err = jsoniter.ConfigFastest.Unmarshal(data, &con)
 	if err != nil {
 		c.log.Error(err)
