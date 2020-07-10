@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
 	"net/http"
-	"os"
 	"runtime"
 	"time"
 )
@@ -23,11 +22,12 @@ type RouterConstruct struct {
 	blackboard *blackboard.Blackboard
 	pool       *websocket.Pool
 	config     *config.Config
+	closeChan  chan bool
 }
 
-func NewRouterConstruct(l log.Logger, u *Utilities, b *blackboard.Blackboard, c *config.Config) *RouterConstruct {
+func NewRouterConstruct(l log.Logger, u *Utilities, b *blackboard.Blackboard, c *config.Config, clo chan bool) *RouterConstruct {
 	gin.SetMode(gin.ReleaseMode)
-	return &RouterConstruct{log: l, utilities: u, router: gin.Default(), blackboard: b, config:c}
+	return &RouterConstruct{log: l, utilities: u, router: gin.Default(), blackboard: b, config: c, closeChan: clo}
 }
 
 func (c *RouterConstruct) startRouter(portNumber int) {
@@ -92,7 +92,7 @@ func (c *RouterConstruct) startRouter(portNumber int) {
 
 func (c *RouterConstruct) closeServer() {
 	time.Sleep(1 * time.Second)
-	os.Exit(3)
+	c.closeChan <- true
 }
 
 // define our WebSocket endpoint

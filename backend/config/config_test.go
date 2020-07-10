@@ -9,13 +9,10 @@ import (
 func TestConfig(t *testing.T) {
 	log := log2.Instance()
 	db := db2.NewDatabase()
+	defer db.Close()
 	config := NewConfig(log, db, "test1")
 
 	t.Log(config.Data)
-
-	t.Log(config.Data.AccessToken)
-
-	config.Data.AccessToken = "testing5"
 
 	err := config.SaveConfigData()
 	if err != nil {

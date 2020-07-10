@@ -3,6 +3,7 @@ import {AppThunk} from "../../app/store";
 import axios from 'axios';
 import * as log from 'loglevel';
 import {RootState} from "../../app/rootReducer";
+import {PORT} from "../../constants";
 
 interface JsonHolder {
     value: any
@@ -46,7 +47,7 @@ interface PingResponse {
 }
 
 async function getPing() {
-    const url = "http://127.0.0.1:5001/api/data";
+    const url = "http://127.0.0.1:" + PORT + "/api/data";
     const {data} = await axios.get<PingResponse>(url);
     return data
 }
@@ -57,7 +58,7 @@ export const closeBackend = ():
 };
 
 async function getClose() {
-    const url = "http://127.0.0.1:5001/api/close";
+    const url = "http://127.0.0.1:" + PORT + "/api/close";
     const {data} = await axios.get<PingResponse>(url);
     return data
 }

@@ -2,6 +2,7 @@ import React, {createContext, PropsWithChildren, ReactNode} from 'react'
 import {useDispatch} from 'react-redux';
 import * as log from 'loglevel';
 import {receivedMessageHandler, sendMessageHandler} from "./websocketMessageHandler";
+import {PORT} from "../constants";
 
 const WebSocketContext = createContext<Websocket | null>(null);
 
@@ -22,7 +23,7 @@ const WebSocketProvider = ({children}: PropsWithChildren<ReactNode>) => {
         sendMessageHandler(webSocket, type, message);
     };
 
-    webSocket = new WebSocket("ws://127.0.0.1:4999/api/ws");
+    webSocket = new WebSocket("ws://127.0.0.1:" + PORT + "/api/ws");
     webSocket.onmessage = ev => {
         receivedMessageHandler(ev.data, dispatch);
     };

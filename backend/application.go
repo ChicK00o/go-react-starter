@@ -7,12 +7,12 @@ import (
 )
 
 type Application struct {
-	log log.Logger
+	log   log.Logger
 }
 
 func NewApplication(log log.Logger) *Application {
 	app := &Application{
-		log:log,
+		log:   log,
 	}
 	app.setIndianTimeZone()
 	return app
