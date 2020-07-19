@@ -1,29 +1,18 @@
 import React, {FormEvent, useContext, useState} from 'react';
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../../app/rootReducer";
-import ReactJson from "react-json-view";
-import {closeBackend} from "./jsonSlice";
-import {ChangeHandler} from "../../utilities/types";
-import {WebSocketContext} from "../../websocket/websocketProvider";
+import {useDispatch} from "react-redux";
+import {closeBackend} from "../../../features/responseDisplay/jsonSlice";
+import {InputChangeHandler} from "../../../utilities/types";
+import {WebSocketContext} from "../../../websocket/websocketProvider";
 
-const ResponseJson = () => {
+const System = () => {
     const dispatch = useDispatch();
-
-    const {value} = useSelector(
-        (state: RootState) => state.jsonHolder
-    );
-
-    const onPingServer = () => {
-        // dispatch(pingBackend());
-        ws?.sendMessage("data", {})
-    };
 
     const onCloseServer = () => {
         dispatch(closeBackend());
     };
 
     const [data, setData] = useState("not set");
-    const handleChange: ChangeHandler = event => {
+    const handleChange: InputChangeHandler = event => {
         const {value} = event.target;
         setData(value);
     };
@@ -36,10 +25,6 @@ const ResponseJson = () => {
 
     return (
         <div>
-            <div>
-                <ReactJson src={value} theme="solarized"/>
-                <button onClick={onPingServer}>Get Data</button>
-            </div>
             <form onSubmit={onFormSubmit}>
                 <label>Message Backend</label>
                 <input value={data} onChange={handleChange}/>
@@ -53,4 +38,4 @@ const ResponseJson = () => {
     );
 };
 
-export default ResponseJson;
+export default System;

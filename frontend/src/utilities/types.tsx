@@ -1,4 +1,7 @@
 import {ChangeEvent} from "react";
 
 type InputEvent = ChangeEvent<HTMLInputElement>
-export type ChangeHandler = (e: InputEvent) => void
+export type InputChangeHandler = (e: InputEvent) => void
+
+type SelectEvent = ChangeEvent<HTMLSelectElement>
+export type SelectChangeHandler = (e: SelectEvent) => void

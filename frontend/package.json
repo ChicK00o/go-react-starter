@@ -16,7 +16,10 @@
     "react-json-view": "^1.19.1",
     "react-redux": "^7.2.0",
     "react-scripts": "^3.4.1",
+    "react-universal-component": "^4.0.1",
     "redux": "^4.0.5",
+    "redux-first-router": "^2.1.5",
+    "redux-first-router-link": "^2.1.1",
     "typescript": "^3.8.3",
     "websocket-extensions":"^0.1.4"
   },
@@ -33,6 +36,9 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@types/react-sound": "^1.2.2"
+    "@types/react-sound": "^1.2.2",
+    "@types/redux-first-router": "^2.1.5",
+    "@types/redux-first-router-link": "^1.4.4",
+    "@types/webpack-env": "^1.15.2"
   }
 }

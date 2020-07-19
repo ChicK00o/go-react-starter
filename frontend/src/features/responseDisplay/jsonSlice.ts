@@ -1,8 +1,7 @@
 import {Action, createSlice, PayloadAction, ThunkDispatch} from "@reduxjs/toolkit";
-import {AppThunk} from "../../app/store";
+import {AppThunk, RootState} from "../../app/store";
 import axios from 'axios';
 import * as log from 'loglevel';
-import {RootState} from "../../app/rootReducer";
 import {PORT} from "../../constants";
 
 interface JsonHolder {

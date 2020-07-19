@@ -1,7 +1,7 @@
 import {Action, ThunkDispatch} from "@reduxjs/toolkit";
-import {RootState} from "../app/rootReducer";
 import {jsonResponse, configResponse} from "../features/responseDisplay/jsonSlice";
 import log from "loglevel";
+import {RootState} from "../app/store";
 
 interface Message {
     body: any,
