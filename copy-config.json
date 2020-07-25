@@ -11,8 +11,12 @@
     "/backend/frontend",
     "/index.html",
     "/manifest.json",
-    "custom",
     "go.sum"
+  ],
+  "temp": [
+    "_test.go",
+    "custom",
+    "go.mod"
   ]
 }
 

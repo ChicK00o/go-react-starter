@@ -2,6 +2,8 @@ package main
 
 import (
 	"4d63.com/tz"
+	"backend/application"
+	"backend/router"
 	"github.com/ChicK00o/container"
 	"time"
 )
@@ -9,15 +11,15 @@ import (
 func main() {
 	setIndianTimeZone()
 
-	var app *Application
+	var app *application.Application
 	container.Make(&app)
 	defer app.Close()
 
 	customCodeStart()
 
-	var router *RouterConstruct
-	container.Make(&router)
-	router.StartRouter()
+	var r *router.RouterConstruct
+	container.Make(&r)
+	r.StartRouter()
 }
 
 func setIndianTimeZone() {

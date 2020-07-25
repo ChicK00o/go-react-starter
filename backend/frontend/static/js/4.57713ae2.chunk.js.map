@@ -1,1 +1,0 @@
-{"version":3,"sources":["app/routing/pages/home.tsx"],"names":["Home"],"mappings":"qGAAA,2BAUeA,UARF,WACT,OACI,6BACI","file":"static/js/4.57713ae2.chunk.js","sourcesContent":["import React from \"react\";\n\nconst Home = () => {\n    return (\n        <div>\n            <h1>Go React Starter</h1>\n        </div>\n    )\n};\n\nexport default Home\n"],"sourceRoot":""}
