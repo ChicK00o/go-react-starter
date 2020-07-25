@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/log"
 	"context"
+	"github.com/ChicK00o/container"
 	jsoniter "github.com/json-iterator/go"
 )
 
@@ -14,23 +15,23 @@ type Config struct {
 	Data *CustomData
 }
 
-var configInstance *Config = nil
-
-func NewConfig(l log.Logger, d *db.Database, projectKey string) *Config {
-	if configInstance == nil {
-		configInstance = &Config{
-			log: l,
-			db:  d,
-			key: projectKey,
+func init() {
+	container.Singleton(func(logger log.Logger, database *db.Database) *Config {
+		configInstance := &Config{
+			log:  logger,
+			db:   database,
+			key:  ProjectKey,
 			Data: InitialCustomData(),
 		}
 		configInstance.init()
-	}
-	return configInstance
+		return configInstance
+	})
 }
 
 func (c *Config) init() {
-	//c.createTableIfNeeded()
+	if TestTableCreation {
+		_ = c.createTableIfNeeded()
+	}
 	c.getConfigData()
 }
 

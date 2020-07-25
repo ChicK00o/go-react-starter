@@ -1,16 +1,14 @@
 package config
 
 import (
-	db2 "backend/db"
-	log2 "backend/log"
+	"github.com/ChicK00o/container"
 	"testing"
 )
 
 func TestConfig(t *testing.T) {
-	log := log2.Instance()
-	db := db2.NewDatabase()
-	defer db.Close()
-	config := NewConfig(log, db, "test1")
+	var config *Config
+	container.Make(&config)
+	defer config.db.Close()
 
 	t.Log(config.Data)
 

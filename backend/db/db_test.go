@@ -2,11 +2,14 @@ package db
 
 import (
 	"context"
+	"github.com/ChicK00o/container"
 	"testing"
 )
 
 func TestDb (t *testing.T) {
-	db := NewDatabase()
+	var db *Database
+	container.Make(&db)
+
 	defer db.Close()
 
 	var greeting string
@@ -15,5 +18,4 @@ func TestDb (t *testing.T) {
 		t.Error("QueryRow failed: ", err)
 	}
 	t.Log(greeting)
-
 }

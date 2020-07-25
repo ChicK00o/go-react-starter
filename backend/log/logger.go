@@ -1,6 +1,9 @@
 package log
 
-import "go.uber.org/zap"
+import (
+	"github.com/ChicK00o/container"
+	"go.uber.org/zap"
+)
 
 type Logger interface {
 	With(args ...interface{}) *Logger
@@ -13,34 +16,26 @@ type Logger interface {
 	Close()
 }
 
-var internalLogger Logger = nil
-var createdDefault bool = false
+var createdDefault = false
 var zapper *zapLogger = nil
 
-func NewLogger(wantDefault bool) Logger {
-	if !isLoggerNil() {
-		internalLogger.Error("Logger is already created")
-		return internalLogger
-	}
+func init() {
+	container.Singleton(func() Logger {
+		return newLogger(false)
+	})
+}
+
+func newLogger(wantDefault bool) Logger {
 	if wantDefault {
 		createdDefault = true
-		internalLogger = initDefaultLogger()
-		return internalLogger
+		return initDefaultLogger()
 	}
+
 	createdDefault = false
-	internalLogger, zapper = initZapLogger()
-	return internalLogger
-}
 
-func isLoggerNil() bool {
-	return internalLogger == nil
-}
-
-func Instance() Logger {
-	if isLoggerNil() {
-		_ = NewLogger(false)
-	}
-	return internalLogger
+	var logger Logger
+	logger, zapper = initZapLogger()
+	return logger
 }
 
 func IsZapLogger() bool {

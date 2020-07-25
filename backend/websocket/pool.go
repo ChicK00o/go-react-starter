@@ -3,10 +3,12 @@ package websocket
 import (
 	"backend/log"
 	"errors"
+	"github.com/ChicK00o/container"
+	jsoniter "github.com/json-iterator/go"
 )
 
 type Receivers interface {
-	FromClients(WSMessage)
+	FromClients(WSMessage) bool
 }
 
 type Pool struct {
@@ -16,47 +18,59 @@ type Pool struct {
 	ToClients    chan Message
 	FromClients  chan WSMessage
 	AllReceivers []Receivers
+	log          log.Logger
 }
 
-func NewPool() *Pool {
-	return &Pool{
-		Register:     make(chan *Client),
-		Unregister:   make(chan *Client),
-		Clients:      make(map[*Client]bool),
-		ToClients:    make(chan Message),
-		FromClients:  make(chan WSMessage),
-		AllReceivers: make([]Receivers, 0),
-	}
+func init() {
+	container.Singleton(func(logger log.Logger) *Pool {
+		pool := &Pool{
+			Register:     make(chan *Client),
+			Unregister:   make(chan *Client),
+			Clients:      make(map[*Client]bool),
+			ToClients:    make(chan Message),
+			FromClients:  make(chan WSMessage),
+			AllReceivers: make([]Receivers, 0),
+			log:          logger,
+		}
+		go pool.start()
+
+		return pool
+	})
 }
 
-func (pool *Pool) Start() {
+func (pool *Pool) start() {
 	for {
 		select {
 		case client := <-pool.Register:
 			pool.Clients[client] = true
-			log.Instance().Info("Size of Connection Pool: ", len(pool.Clients))
+			pool.log.Info("Size of Connection Pool: ", len(pool.Clients))
 			for client, _ := range pool.Clients {
-				log.Instance().Info(client)
-				writeJSON(client.Conn, Message{Type: "system", Body: "client connected"})
+				pool.log.Info(client)
+				_ = writeJSON(client.Conn, Message{Type: "system", Body: "client connected"}, pool.log)
 			}
 			break
 		case client := <-pool.Unregister:
 			delete(pool.Clients, client)
-			log.Instance().Info("Size of Connection Pool: ", len(pool.Clients))
+			pool.log.Info("Size of Connection Pool: ", len(pool.Clients))
 			for client, _ := range pool.Clients {
-				writeJSON(client.Conn, Message{Type: "system", Body: "client disconnected"})
+				_ = writeJSON(client.Conn, Message{Type: "system", Body: "client disconnected"}, pool.log)
 			}
 			break
 		case message := <-pool.ToClients:
-			//log.Instance().Info("Sending message to all clients in Pool")
+			//pool.log.Info("Sending message to all clients in Pool")
 			for client, _ := range pool.Clients {
-				writeJSON(client.Conn, message)
+				_ = writeJSON(client.Conn, message, pool.log)
 			}
 			break
 		case message := <-pool.FromClients:
-			//log.Instance().Info("Sending message to all clients in Pool")
+			//pool.log.Info("Sending message to all clients in Pool")
+			handled := false
 			for item := range pool.AllReceivers {
-				go pool.AllReceivers[item].FromClients(message)
+				handled = handled || pool.AllReceivers[item].FromClients(message)
+			}
+			if !handled {
+				data, _ := jsoniter.ConfigFastest.MarshalToString(message.Msg.Body)
+				pool.log.Error("Unhandled message type : ", message.Msg.Type, " with data : ", data)
 			}
 		}
 	}

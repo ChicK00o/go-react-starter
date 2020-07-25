@@ -2,7 +2,7 @@ import {Action, createSlice, PayloadAction, ThunkDispatch} from "@reduxjs/toolki
 import {AppThunk, RootState} from "../../app/store";
 import axios from 'axios';
 import * as log from 'loglevel';
-import {PORT} from "../../constants";
+import {PORT} from "../../customConstants";
 
 interface JsonHolder {
     value: any

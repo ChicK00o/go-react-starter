@@ -1,6 +1,6 @@
 import React from 'react';
-import Navbar from "./routing/Navbar";
 import Pager from "./routing/Pager";
+import Navbar from "./routing/Navbar";
 
 const App: React.FC = () => {
     return (

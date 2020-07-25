@@ -1,0 +1,18 @@
+{
+  "ignore": [
+    "/\\.(\\w)",
+    "build",
+    "package\\.json",
+    "tsconfig\\.json",
+    "windowsBuild",
+    "yarn\\.lock",
+    "(\\w)\\.log",
+    "node_modules",
+    "/backend/frontend",
+    "/index.html",
+    "/manifest.json",
+    "custom",
+    "go.sum"
+  ]
+}
+

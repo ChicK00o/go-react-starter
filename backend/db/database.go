@@ -3,6 +3,7 @@ package db
 import (
 	"backend/log"
 	"context"
+	"github.com/ChicK00o/container"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/log/zapadapter"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -13,16 +14,15 @@ type Database struct {
 	Conn *pgxpool.Pool
 }
 
-var instance *Database
-
-func NewDatabase() *Database {
-	if instance == nil {
+func init() {
+	container.Singleton(func(logger log.Logger) *Database{
 		instance = &Database{}
-		logger := log.Instance()
 		instance.connectToDb(logger)
-	}
-	return instance
+		return instance
+	})
 }
+
+var instance *Database
 
 func (d *Database) Close() {
 	d.Conn.Close()
@@ -39,6 +39,7 @@ func (d *Database) connectToDb(logger log.Logger) {
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		logger.Panic(err.Error())
+		return
 	}
 
 	if log.IsZapLogger() {

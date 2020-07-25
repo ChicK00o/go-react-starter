@@ -1,0 +1,1 @@
+{"version":3,"sources":["app/routing/pages/customHome.tsx"],"names":["Home"],"mappings":"qGAAA,2BAUeA,UARF,WACT,OACI,6BACI","file":"static/js/3.38e19a99.chunk.js","sourcesContent":["import React from \"react\";\n\nconst Home = () => {\n    return (\n        <div>\n            <hr/>\n        </div>\n    )\n};\n\nexport default Home\n"],"sourceRoot":""}

@@ -6,10 +6,10 @@ import (
 	"backend/log"
 	"backend/websocket"
 	"fmt"
+	"github.com/ChicK00o/container"
 	"github.com/gin-gonic/contrib/cors"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
-	jsoniter "github.com/json-iterator/go"
 	"net/http"
 	"runtime"
 	"time"
@@ -25,12 +25,27 @@ type RouterConstruct struct {
 	closeChan  chan bool
 }
 
-func NewRouterConstruct(l log.Logger, u *Utilities, b *blackboard.Blackboard, c *config.Config, clo chan bool) *RouterConstruct {
+func init() {
 	gin.SetMode(gin.ReleaseMode)
-	return &RouterConstruct{log: l, utilities: u, router: gin.Default(), blackboard: b, config: c, closeChan: clo}
+	container.Singleton(func(
+		l log.Logger,
+		u *Utilities,
+		b *blackboard.Blackboard,
+		c *config.Config,
+		p *websocket.Pool,
+		app *Application) *RouterConstruct {
+		return &RouterConstruct{
+			log:        l,
+			utilities:  u,
+			router:     gin.Default(),
+			blackboard: b,
+			config:     c,
+			pool:       p,
+			closeChan:  app.closeChan}
+	})
 }
 
-func (c *RouterConstruct) startRouter(portNumber int) {
+func (c *RouterConstruct) StartRouter() {
 	// Set the router as the default one shipped with Gin
 	c.router.Use(cors.Default())
 
@@ -55,8 +70,6 @@ func (c *RouterConstruct) startRouter(portNumber int) {
 		})
 	})
 
-	c.pool = websocket.NewPool()
-	go c.pool.Start()
 	if err := c.pool.RegisterReceiver(c); err != nil {
 		c.log.Error(err)
 	}
@@ -83,9 +96,8 @@ func (c *RouterConstruct) startRouter(portNumber int) {
 		})
 	}
 
-	go c.listenForBlackboard()
 	// Start and run the server
-	if err := c.router.Run(fmt.Sprintf(":%d", portNumber)); err != nil {
+	if err := c.router.Run(fmt.Sprintf(":%d", c.config.Data.Port)); err != nil {
 		panic(err)
 	}
 }
@@ -101,7 +113,7 @@ func (c *RouterConstruct) serveWs(pool *websocket.Pool, w http.ResponseWriter, r
 
 	// upgrade this connection to a WebSocket
 	// connection
-	ws, err := websocket.Upgrade(w, r)
+	ws, err := websocket.Upgrade(w, r, c.log)
 	if err != nil {
 		c.log.Error(err)
 	}
@@ -119,28 +131,17 @@ func (c *RouterConstruct) serveWs(pool *websocket.Pool, w http.ResponseWriter, r
 	client.Read()
 }
 
-func (c *RouterConstruct) FromClients(message websocket.WSMessage) {
+func (c *RouterConstruct) FromClients(message websocket.WSMessage) bool {
 	switch message.Msg.Type {
 	case "data":
-		c.blackboard.UpdateDisplay()
-		break
+		go c.blackboard.UpdateDisplay()
+		return true
 	case "config":
-		c.config.UpdateConfig(message.Msg.Body)
-		break
-	default:
-		data, _ := jsoniter.ConfigFastest.MarshalToString(message.Msg.Body)
-		c.log.Error("Unhandled message type : ", message.Msg.Type, " with data : ", data)
+		go c.config.UpdateConfig(message.Msg.Body)
+		return true
+	case "ping":
 		go c.pool.BroadcastData("ping_pong", message.Msg)
+		return true
 	}
-}
-
-func (c *RouterConstruct) listenForBlackboard() {
-	c.blackboard.ListenerAttached = true
-	for {
-		_ = <-c.blackboard.UpdateChannel
-		c.blackboard.Display.Time = time.Now().String()
-		c.blackboard.Display.GoRoutineCount = runtime.NumGoroutine()
-		go c.pool.BroadcastData("display", c.blackboard.Display)
-		go c.pool.BroadcastData("config", c.config.Data)
-	}
+	return false
 }

@@ -1,50 +1,30 @@
 package main
 
 import (
-	"backend/blackboard"
-	"backend/config"
-	"backend/db"
-	"backend/log"
-	"os"
-	"os/signal"
+	"4d63.com/tz"
+	"github.com/ChicK00o/container"
+	"time"
 )
 
 func main() {
-	closeChan := make(chan bool)
-	log2 := log.NewLogger(false)
-	defer log2.Close()
+	setIndianTimeZone()
 
-	app := NewApplication(log2)
+	var app *Application
+	container.Make(&app)
+	defer app.Close()
 
-	board := blackboard.NewBlackboard(app.log)
-	utilities := NewUtilities(app.log)
-	db2 := db.NewDatabase()
-	defer db2.Close()
-	con := config.NewConfig(log2, db2, "go-react-starter")
+	customCodeStart()
 
-	setUpCloseListener(closeChan, log2, db2)
-	routerConstruct := NewRouterConstruct(app.log, utilities, board, con, closeChan)
-	routerConstruct.startRouter(con.Data.Port)
+	var router *RouterConstruct
+	container.Make(&router)
+	router.StartRouter()
 }
 
-func setUpCloseListener(closeChan chan bool, logger log.Logger, database *db.Database) {
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt)
-
-	cleanup := func() {
-		database.Close()
-		logger.Close()
-		os.Exit(3)
+func setIndianTimeZone() {
+	var timezone = "Asia/Kolkata"
+	loc, err := tz.LoadLocation(timezone)
+	if err != nil {
+		panic(err.Error())
 	}
-
-	go func() {
-		select {
-		case <-c:
-			cleanup()
-		case <-closeChan:
-			signal.Stop(c)
-			cleanup()
-		}
-	}()
-
+	time.Local = loc
 }

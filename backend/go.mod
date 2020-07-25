@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	4d63.com/tz v1.1.0
+	github.com/ChicK00o/container v1.2.4-0.20200724073722-c2c0240215a7
 	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gorilla/websocket v1.4.2

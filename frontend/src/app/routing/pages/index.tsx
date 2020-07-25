@@ -1,2 +1,3 @@
-import Home from "./home";
+import Home from "./customHome";
+
 export default Home

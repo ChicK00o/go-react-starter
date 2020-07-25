@@ -1,2 +1,0 @@
-(this.webpackJsonpfrontend=this.webpackJsonpfrontend||[]).push([[0,3],{21:function(t,e,n){"use strict";n.r(e);var r=n(0),a=n.n(r);e.default=function(){return a.a.createElement("div",null,a.a.createElement("h1",null,"Go React Starter"))}},9:function(t,e,n){"use strict";n.r(e);var r=n(21);e.default=r.default}}]);
-//# sourceMappingURL=0.9bcf12c9.chunk.js.map

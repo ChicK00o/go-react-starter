@@ -2,7 +2,7 @@ import React, {createContext, PropsWithChildren, ReactNode} from 'react'
 import {useDispatch} from 'react-redux';
 import * as log from 'loglevel';
 import {receivedMessageHandler, sendMessageHandler} from "./websocketMessageHandler";
-import {PORT} from "../constants";
+import {PORT} from "../customConstants";
 
 const WebSocketContext = createContext<Websocket | null>(null);
 

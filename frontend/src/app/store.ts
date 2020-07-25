@@ -9,6 +9,7 @@ import {
 import { connectRoutes } from 'redux-first-router'
 import RoutesMap from "./routing/RoutesMap";
 import jsonHolderReducer from "../features/responseDisplay/jsonSlice";
+import CustomReducers from "./customReducer";
 
 const {
     middleware: routerMiddleware,
@@ -19,8 +20,8 @@ const {
 const rootReducer = combineReducers({
     jsonHolder: jsonHolderReducer,
     location: routerReducer,
+    ...CustomReducers
 });
-
 
 const store = configureStore({
     reducer: rootReducer,

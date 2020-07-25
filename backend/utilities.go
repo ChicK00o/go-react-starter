@@ -3,6 +3,7 @@ package main
 import (
 	"backend/log"
 	"encoding/csv"
+	"github.com/ChicK00o/container"
 	"net/http"
 )
 
@@ -10,8 +11,10 @@ type Utilities struct {
 	logger log.Logger
 }
 
-func NewUtilities(l log.Logger) *Utilities {
-	return &Utilities{logger:l}
+func init() {
+	container.Singleton(func(logger log.Logger) *Utilities {
+		return &Utilities{logger:logger}
+	})
 }
 
 func (u *Utilities) readCSVFromUrl(url string) ([][]string, error) {

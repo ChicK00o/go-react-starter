@@ -322,3 +322,8 @@ mark{ background-color: transparent; color: #007c30; text-decoration: underline 
     padding-left: 0.5rem;
     padding-right: 0.5rem;
 }
+
+.react-json-view .copy-to-clipboard-container {
+    vertical-align: middle;
+    margin: 0rem;
+}

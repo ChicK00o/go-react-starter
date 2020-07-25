@@ -2,8 +2,9 @@ import {Action, ThunkDispatch} from "@reduxjs/toolkit";
 import {jsonResponse, configResponse} from "../features/responseDisplay/jsonSlice";
 import log from "loglevel";
 import {RootState} from "../app/store";
+import {customMessageHandler} from "./customMessageHandler";
 
-interface Message {
+export interface Message {
     body: any,
     type: string,
 }
@@ -20,11 +21,9 @@ export const receivedMessageHandler = (data: any, dispatch: ThunkDispatch<RootSt
     const rawPayload = JSON.parse(data);
     const payload = rawPayload as Message;
     if (payload !== undefined) {
+        customMessageHandler(payload, dispatch);
         switch (payload.type) {
             case "display": {
-                log.debug(payload.type + " : " + payload.body);
-                // const value = payload.body as DisplayResponse;
-                // dispatch(displayResponse(value));
                 dispatch(jsonResponse(payload));
                 break;
             }

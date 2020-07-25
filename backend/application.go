@@ -1,28 +1,52 @@
 package main
 
 import (
-	"4d63.com/tz"
+	"backend/db"
 	"backend/log"
-	"time"
+	"github.com/ChicK00o/container"
+	"os"
+	"os/signal"
 )
 
 type Application struct {
-	log   log.Logger
+	log       log.Logger
+	db        *db.Database
+	closeChan chan bool
 }
 
-func NewApplication(log log.Logger) *Application {
-	app := &Application{
-		log:   log,
-	}
-	app.setIndianTimeZone()
-	return app
+func init() {
+	container.Singleton(func(logger log.Logger, database *db.Database) *Application {
+		app := &Application{
+			log:       logger,
+			db:        database,
+			closeChan: make(chan bool),
+		}
+		app.setUpCloseListener()
+		return app
+	})
 }
 
-func (app *Application) setIndianTimeZone() {
-	var timezone = "Asia/Kolkata"
-	loc, err := tz.LoadLocation(timezone)
-	if err != nil {
-		app.log.Panic(err.Error())
+func (app *Application) setUpCloseListener() {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
+
+	cleanup := func() {
+		app.Close()
+		os.Exit(3)
 	}
-	time.Local = loc
+
+	go func() {
+		select {
+		case <-c:
+			cleanup()
+		case <-app.closeChan:
+			signal.Stop(c)
+			cleanup()
+		}
+	}()
+}
+
+func (app *Application) Close() {
+	app.db.Close()
+	app.log.Close()
 }
