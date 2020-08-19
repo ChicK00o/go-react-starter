@@ -48,7 +48,6 @@ small, sub, sup { font-size: 75%; }
 
 /* headings */
 h1, h2, h3, h4, h5, h6 {
-    margin: 1.5em 0 0em;
     padding: 0.3em 0;
 }
 h1 { font-size: 2.5em; font-weight: 300; }
@@ -145,7 +144,7 @@ body > nav { position: fixed; top: 0; left: 0; }
 nav ul:first-child {
     list-style-type: none;
     margin: auto;
-    max-width: 60rem;
+    /*max-width: 90rem;*/
     padding: 0 0.5rem;
     overflow: visible;
 }
@@ -205,9 +204,10 @@ mark{ background-color: transparent; color: #007c30; text-decoration: underline 
 .row .col   { flex: 1 1 100%; }
 .row .col-2 { flex: 0 0 16.66%; }
 .row .col-3 { flex: 0 0 25%; }
-.row .col-4 { flex: 0 0 33.33%; }
+.row .col-4 { flex: 0 0 33.33%;}
 .row .col-6 { flex: 0 0 50%; }
 
+.row .card { margin: 0.5rem 0.5rem 0.5rem 0.5rem; }
 
 /* cards */
 .card{
@@ -318,12 +318,45 @@ mark{ background-color: transparent; color: #007c30; text-decoration: underline 
 
 .bodyCentering {
     margin: auto;
-    max-width: 60rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    /*max-width: 90rem;*/
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .react-json-view .copy-to-clipboard-container {
     vertical-align: middle;
     margin: 0rem;
 }
+
+/*react-masonry-css*/
+
+.my-masonry-grid {
+    display: -webkit-box; /* Not needed if autoprefixing */
+    display: -ms-flexbox; /* Not needed if autoprefixing */
+    display: flex;
+    margin-left: -0.5rem; /* gutter size offset */
+    width: auto;
+}
+.my-masonry-grid_column {
+    padding-left: 0.5rem; /* gutter size */
+    background-clip: padding-box;
+}
+
+/*!* Style your items *!*/
+/*.my-masonry-grid_column > div { !* change div to reference your elements you put in <Masonry> *!*/
+/*    !*background: grey;*!*/
+/*    !*margin-bottom: 1rem;*!*/
+/*}*/
+
+/*!* Optional, different gutter size on mobile *!*/
+/*@media (max-width: 800px) {*/
+/*    .my-masonry-grid {*/
+/*        margin-left: -15px; !* gutter size offset *!*/
+/*    }*/
+/*    .my-masonry-grid_column {*/
+/*        padding-left: 15px; !* gutter size offset *!*/
+/*    }*/
+/*    .my-masonry-grid_column > div {*/
+/*        margin-bottom: 15px; !* space between items *!*/
+/*    }*/
+/*}*/
