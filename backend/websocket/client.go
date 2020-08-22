@@ -30,6 +30,15 @@ func (c *Client) Read() {
 	for {
 		messageType, p, err := c.Conn.ReadMessage()
 		if err != nil {
+			if ce, ok := err.(*websocket.CloseError); ok {
+				switch ce.Code {
+				case websocket.CloseNormalClosure,
+					websocket.CloseGoingAway,
+					websocket.CloseNoStatusReceived:
+					c.Pool.log.Debug("Client Lost Connection")
+					return
+				}
+			}
 			c.Pool.log.Error(err)
 			continue
 		}
